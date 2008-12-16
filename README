@@ -1,0 +1,34 @@
+# RELEASE
+http://github.com/brunofms/inf2106_map-reduce/tree/master/release/scs-turma08.2_G1.tar.gz
+
+# RELATÓRIO
+http://github.com/brunofms/inf2106_map-reduce/tree/master/data/scs_relatorio_final.pdf
+
+# APRESENTAÇÃO FINAL
+http://github.com/brunofms/inf2106_map-reduce/tree/master/data/apresentacao.key
+
+#################################### SETUP NO CLUSTER ####################################  
+
+# BAIXAR O SCS
+[scs08_g1@server ~]$ wget "http://www.tecgraf.puc-rio.br/~scorrea/scs/src/SCS.tar.bz2"
+
+# DESCOMPACTAR O PACOTE 
+[scs08_g1@server ~]$ bunzip2 SCS.tar.bz2
+[scs08_g1@server ~]$ tar -xvf SCS.tar
+
+# BAIXAR PROJETO
+[scs08_g1@server ~]$ git clone git://github.com/brunofms/inf2106_map-reduce.git
+
+# AJUSTAR AMBIENTE DE COMPILAÇÃO E EXECUÇÃO
+[scs08_g1@server ~]$ ln -s inf2106_map-reduce/mapreduce scs-turma08.2/src/java/scs/demos/mapreduce
+[scs08_g1@server ~]$ rm -f scs-turma08.2/idl/mapReduce.idl
+[scs08_g1@server ~]$ ln -s inf2106_map-reduce/mapreduce/idl/mapReduce.idl scs-turma08.2/idl/mapReduce.idl
+
+# EDITAR O ARQUIVO DE CONFIGURAÇÃO
+[scs08_g1@server java]$ vim ../../scripts/execute/mapReduce.properties
+
+# COPIAR O SISTEMA COMPILADO PARA OS DEMAIS NÓS DO CLUSTER
+[scs08_g1@server java]$ scp -r * scs08_g1@n01:~/scs-turma08.2/src/java ; scp -r * scs08_g1@n02:~/scs-turma08.2/src/java ; scp -r * scs08_g1@n03:~/scs-turma08.2/src/java
+
+# ACIONAR O SCRIPT DE EXECUÇÃO
+[scs08_g1@server java]$ ../../scripts/execute/run-mapReduce.sh
