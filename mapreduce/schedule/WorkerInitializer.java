@@ -431,18 +431,31 @@ public class WorkerInitializer {
 	}
 
 	/* re-cria as tarefas perdidas de acordo com status */
-	public Task recreateTask(FileSplit[] split, TaskStatus status, int index, ArrayList<FileSplit>[] inputToReducers) {
+	public Task recreateTask(FileSplit[] split, TaskStatus status) {
+		reporter.report(1,"RECREATING");
 		try {
 			switch (status.value()) {
 			case TaskStatus._MAP:
 				reporter.report(1,"Creating New Map Task for Recovery");
-				MapTaskServant ms = new MapTaskServant(
-						configFileName, reporter, poa, split[0]);
-				return TaskHelper.narrow(this.poa.servant_to_reference(ms));
+				return TaskHelper.narrow(this.poa.servant_to_reference(new MapTaskServant(configFileName, reporter, poa, split[0])));
+			default:
+				break;
+			}
+		} catch (Exception e) {
+			exception = LogError.getStackTrace(e);
+			reporter.report(0,"WorkerInitializer::buildTask - Erro ao retornar particoes do arquivo.\n" + exception);
+			return null;
+		}
+		return null;
+	}
+	
+	public Task recreateTask(FileSplit[] split, TaskStatus status, int index, ArrayList<FileSplit>[] inputToReducers) {
+		reporter.report(1,"RECREATING");
+		try {
+			switch (status.value()) {
 			case TaskStatus._REDUCE:
 				reporter.report(1,"Creating New Reduce Task for Recovery " + index);
-				ReduceTaskServant rs =  new ReduceTaskServant(
-						configFileName, reporter, poa, inputToReducers[index], index);
+				ReduceTaskServant rs= new ReduceTaskServant(configFileName, reporter, poa, inputToReducers[index], index);
 				return TaskHelper.narrow(poa.servant_to_reference(rs));
 			default:
 				break;

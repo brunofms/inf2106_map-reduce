@@ -66,20 +66,22 @@ public class WorkerServant extends WorkerPOA {
 					"    Arquivos de saida: " + outfileName); */
 
 				eventAny.insert_long(id);
-				if (!task.run()) {
-					reporter.report(1,"WokerServant::run - TaskID= " + id +
+				task.run();
+				
+				if (task.isKilled()) {
+					reporter.report(1,"WorkerServant::run - TaskID= " + id +
 						" killed!");
 					return;
 				}
 			
 			} catch (Exception e) {
 				exception = LogError.getStackTrace(e);
-				reporter.report(0,"WokerServant::run - TaskID= " + id +
+				reporter.report(0,"WorkerServant::run - TaskID= " + id +
 						". Erro ao executar " + operations[op.value()] + ".\n" + 
 						exception);
 				task.setStatus(TaskStatus.ERROR);
 			}
-			reporter.report(1,"Task  " + id + " Finished");
+			reporter.report(1,"WorkerServant::run - TaskID= " + id + " Finished");
 			evSink.push(eventAny);
 		}	
 	}	

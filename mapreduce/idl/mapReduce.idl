@@ -94,11 +94,12 @@ module scs{
 								FileSplits getInput();
 								FileSplits getOutput();
 								Reporter getReporter();          
-								boolean run() raises (IOMapReduceException);
+								void run() raises (IOMapReduceException);
 								long getIndex();
 								void setInitTime();
 								long long getInitTime();
-								void kill();
+								void setKilled();
+								boolean isKilled();
 						};
 
 						interface Master {

@@ -459,7 +459,10 @@ public class MasterServant extends MasterPOA {
 							if(task.getNode().equals(execNodeList[i])) {
 								try {
 									master.getWorkingOn().remove(task);
-									task = initializer.recreateTask(task.getInput(), task.getStatus(), task.getIndex(), master.getInputToReducers());
+									if(task.getStatus().value() == TaskStatus._MAP)
+										task = initializer.recreateTask(task.getInput(), task.getStatus());
+									else
+										task = initializer.recreateTask(task.getInput(), task.getStatus(), task.getIndex(), master.getInputToReducers());
 									master.addTaskQueue(task);
 									task.setNode("");
 									task.setWorkerId(-1);
@@ -481,7 +484,10 @@ public class MasterServant extends MasterPOA {
 							//RECOVER TASK
 							try {
 								master.getWorkingOn().remove(task);
-								task = initializer.recreateTask(task.getInput(), task.getStatus(), task.getIndex(), master.getInputToReducers());
+								if(task.getStatus().value() == TaskStatus._MAP)
+									task = initializer.recreateTask(task.getInput(), task.getStatus());
+								else
+									task = initializer.recreateTask(task.getInput(), task.getStatus(), task.getIndex(), master.getInputToReducers());
 								master.addTaskQueue(task);
 								task.setNode("");
 								task.setWorkerId(-1);
@@ -507,14 +513,15 @@ public class MasterServant extends MasterPOA {
 												"execution node " + task.getNode() + " is taking too long: " + duration +
 												" ms. Current mean: " + meanMapTaskDuration + " ms.");
 
-										task.kill();
+										task.setKilled();
 										
 										// Re-schedule task
 										int workerId = task.getWorkerId();
 
 										try {
+											reporter.report(1,"Timed out!!! Rescheduling task");
 											master.getWorkingOn().remove(task);
-											task = initializer.recreateTask(task.getInput(), task.getStatus(), task.getIndex(), master.getInputToReducers());
+											task = initializer.recreateTask(task.getInput(), task.getStatus());
 											master.addTaskQueue(task);
 											task.setNode("");
 											task.setWorkerId(-1);
@@ -524,6 +531,7 @@ public class MasterServant extends MasterPOA {
 
 										// Make container unavailable
 										try {
+											reporter.report(1,"Timed out!!! Stopping container");
 											String execNodeRef = task.getNode();
 											if (!masterHost.equals(execNodeRef)) {
 												ExecutionNode execNode = initializer.getNode(execNodeRef);
@@ -548,12 +556,13 @@ public class MasterServant extends MasterPOA {
 												"execution node " + task.getNode() + " is taking too long: " + duration +
 												" ms. Current mean: " + meanReduceTaskDuration + " ms.");
 
-										task.kill();
+										task.setKilled();
 										
-										/*// Re-schedule task
+										// Re-schedule task
 										int workerId = task.getWorkerId();
 
 										try {
+											reporter.report(1,"Timed out!!! Rescheduling task");
 											master.getWorkingOn().remove(task);
 											task = initializer.recreateTask(task.getInput(), task.getStatus(), task.getIndex(), master.getInputToReducers());
 											master.addTaskQueue(task);
@@ -565,6 +574,7 @@ public class MasterServant extends MasterPOA {
 
 										// Make container unavailable
 										try {
+											reporter.report(1,"Timed out!!! Stopping container");
 											String execNodeRef = task.getNode();
 											if (!masterHost.equals(execNodeRef)) {
 												ExecutionNode execNode = initializer.getNode(execNodeRef);
@@ -574,7 +584,7 @@ public class MasterServant extends MasterPOA {
 											}
 										} catch (Exception ex) {
 											reporter.report(1,"Error stopping container");
-										}*/
+										}
 
 									}
 
@@ -606,8 +616,10 @@ public class MasterServant extends MasterPOA {
 
 							try {
 								master.getWorkingOn().remove(task);
-								task = initializer.recreateTask(task.getInput(), task.getStatus(), task.getIndex(), master.getInputToReducers());
-								master.addTaskQueue(task);
+								if(task.getStatus().value() == TaskStatus._MAP)
+									task = initializer.recreateTask(task.getInput(), task.getStatus());
+								else
+									task = initializer.recreateTask(task.getInput(), task.getStatus(), task.getIndex(), master.getInputToReducers());master.addTaskQueue(task);
 								task.setNode("");
 								task.setWorkerId(-1);
 							} catch (Exception ex) {

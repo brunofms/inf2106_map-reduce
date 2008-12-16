@@ -147,8 +147,9 @@ public class EventSinkMaster extends EventSinkConsumerServant {
 				while (enu.hasMoreElements()) {
 					task = (Task) enu.nextElement();
 					int id = task.getId();
-
+					
 					if(id == taskId) {
+						reporter.report(1,"Completou a tarefa: " + id);
 						worker = (Worker) master.getWorkingOn().remove(task);
 						master.addWorkerQueue(worker);
 						TaskStatus op = task.getStatus();
